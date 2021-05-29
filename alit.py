@@ -5,7 +5,7 @@ from subprocess import run, PIPE
 
 
 class alit:
-    version = "0.0.1"
+    version = "0.3"
     logo = """
    ##    #      ###  #####
   #  #   #       #     #
