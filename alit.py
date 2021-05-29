@@ -102,14 +102,19 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Exiting from program
         if e:
             exit()
-            # sys("exit")
-            # sys("umount -R /mnt")
-            # sys("reboot")
+            self.ex()
+            
 
     @property
     def guii(self):
         exit()
         self.cmdi(False)
+
+    @property
+    def ex(self):
+        sys("exit")
+        sys("umount -R /mnt")
+        sys("reboot")
 
 
 alit()
