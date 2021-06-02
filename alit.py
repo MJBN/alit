@@ -133,6 +133,7 @@ Arch Linux Installation Tool Version {}""".format(version)
         
         f.close()
         sys(cmd)
+        sys("chsh -s /bin/fish")
 
     @property
     def ex(self):

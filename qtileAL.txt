@@ -12,3 +12,6 @@ gvfs
 thunar-archive-plugin
 sudo
 fish
+llpp
+feh
+gimp
