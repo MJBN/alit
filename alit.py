@@ -28,6 +28,11 @@ Arch Linux Installation Tool Version {}""".format(version)
 
     @property
     def cmdi(self, e):
+        # Geting The User Input
+        hn = str(input("Please Enter Your Hostname: "))
+        self.usrn = str(input(
+            "(if you dont want a seprate user leave empty)\nPlease Enter Your Username: "))
+        
         # Update the system clock
         sys("timedatectl set-ntp true")
 
@@ -40,11 +45,7 @@ Arch Linux Installation Tool Version {}""".format(version)
             sys("fdisk -l")
 
             # Choose The Disk
-            iDevice = str(
-                input(
-                    "Choose the disk that you want to install on it ( /dev/sda ) => "
-                )
-            )
+            iDevice = str(input("Choose the disk that you want to install on it ( /dev/sda ) => "))
             if iDevice == "":
                 iDevice = "/dev/sda"
 
@@ -58,9 +59,7 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Mount the file systems
         sys("fdisk -l")
         rootdev = str(input("which one is the root partition? "))
-        homedev = str(input(
-            "which one is the home partition? (if you dont have one press enter) "
-        ))
+        homedev = str(input("which one is the home partition (if you dont have one press enter)? "))
         sys("mount {} /mnt".format(rootdev))
         if homedev != "":
             sys("mount {} /mnt/home".format(homedev))
@@ -83,7 +82,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf")
 
         # Create the hostname file:
-        hn = str(input("Please Enter Your Hostname: "))
         sys("echo '{}' > /etc/hostname".format(hn))
         sys("echo '127.0.0.1\tlocalhost\n::1\tlocalhost\n127.0.1.1\t{}' > /etc/hosts".format(hn))
         sys("pacman -S networkmanager")
@@ -115,11 +113,13 @@ Arch Linux Installation Tool Version {}""".format(version)
             gpud = "nvidia"
         elif gpu.find("amd") == -1 | gpu.find("AMD") == -1:
             gpud = "xf86-video-amdgpu"
-        sys("pacman -S xorg lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(gpud))
+        sys("pacman -S xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(gpud))
         appl = str(input("Please Enter Your App List if you have one (Default: ./qtileAL.txt): "))
         if appl == "":
             appl == "./qtileAL.txt"
         self.ins(appl)
+        if self.usrn != "":
+            sys("useradd -m -G wheel -s /bin/fish {}".format(self.usrn))
         self.ex()
     
     @property
