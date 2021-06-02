@@ -4,7 +4,11 @@ ranger
 vivaldi
 firefox
 alacritty
-xterm
 mpv
 celluloid
 gvim
+micro
+gvfs
+thunar-archive-plugin
+sudo
+fish
