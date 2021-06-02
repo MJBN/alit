@@ -1,0 +1,10 @@
+qtile
+thunar
+ranger
+vivaldi
+firefox
+alacritty
+xterm
+mpv
+celluloid
+gvim
