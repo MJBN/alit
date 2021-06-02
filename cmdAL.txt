@@ -1,0 +1,4 @@
+fish
+vim
+micro
+ranger
