@@ -100,13 +100,12 @@ Arch Linux Installation Tool Version {}""".format(version)
 
         # Exiting from program
         if e:
-            exit()
+            self.ins("./cmdAL.txt")
             self.ex()
             
 
     @property
     def guii(self):
-        exit()
         self.cmdi(False)
         gpu = run(["lspci","-v","|","grep","-A1","-e","VGA","-e","3D"],
         stdout=PIPE).stdout.decode("UTF-8")
@@ -116,7 +115,7 @@ Arch Linux Installation Tool Version {}""".format(version)
             gpud = "nvidia"
         elif gpu.find("amd") == -1 | gpu.find("AMD") == -1:
             gpud = "xf86-video-amdgpu"
-        sys("pacman -S xorg lightdm lightdm-gtk-greeter {} && systemctl enable lightdm".format(gpud))
+        sys("pacman -S xorg lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(gpud))
         appl = str(input("Please Enter Your App List if you have one (Default: ./qtileAL.txt): "))
         if appl == "":
             appl == "./qtileAL.txt"
