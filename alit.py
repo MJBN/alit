@@ -20,14 +20,14 @@ Arch Linux Installation Tool Version {}""".format(version)
             "\n\t1 - CMD Installtion\n\t2 - GUI Installtion\n\t3 - Exit\n\t=> "
         ))
         if guiORcmd == 1:
-            self.cmdi(True)
+            self.cmdi()
         elif guiORcmd == 2:
             self.guii()
         elif guiORcmd == 3:
             exit()
 
     @property
-    def cmdi(self, e):
+    def cmdi(self):
         # Geting The User Input
         hn = str(input("Please Enter Your Hostname: "))
         self.usrn = str(input(
@@ -74,8 +74,8 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("arch-chroot /mnt")
 
         # Set the time zone
-        #sys("")
-        #sys("hwclock --systohc")
+        sys("ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime")
+        sys("hwclock --systohc")
 
         # Localization
         sys("echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen")
@@ -97,9 +97,7 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("pacman -S grub && grub-install {}".format(iDevice))
 
         # Exiting from program
-        if e:
-            self.ins("./cmdAL.txt")
-            self.ex()
+        self.ins("./cmdAL.txt")
             
 
     @property
@@ -120,7 +118,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         self.ins(appl)
         if self.usrn != "":
             sys("useradd -m -G wheel -s /bin/fish {}".format(self.usrn))
-        self.ex()
     
     @property
     def ins(self, s):
@@ -142,4 +139,5 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("reboot")
 
 
-alit()
+x = alit()
+x.ex()
