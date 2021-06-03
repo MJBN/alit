@@ -110,7 +110,7 @@ Arch Linux Installation Tool Version {}""".format(version)
 
     @property
     def guii(self):
-        self.cmdi(False)
+        self.cmdi()
         gpu = run(["lspci","-v","|","grep","-A1","-e","VGA","-e","3D"],
         stdout=PIPE).stdout.decode("UTF-8")
         if gpu.find("intel") == -1 | gpu.find("Intel") == -1:
