@@ -13,26 +13,43 @@ class alit:
 #      # #####  ###    #
 Arch Linux Installation Tool Version {}""".format(version)
     cpright = "Licensed Under GNU GPLv2\nCoding By M.J. Bagheri Nejad"
+    def chpath(self):
+        chp = int(input(
+            "\n\t1 - CMD Installtion\n\t2 - GUI Installtion\n\t3 - Exit\n\t=> "
+        ))
+        if chp == 1:
+            self.cmdi()
+        elif chp == 2:
+            self.guii()
+        elif chp == 3:
+            self.ex()
+        else:
+            self.chpath()
 
     def __init__(self):
         print("{}\n{}".format(self.logo, self.cpright))
-        guiORcmd = int(input(
-            "\n\t1 - CMD Installtion\n\t2 - GUI Installtion\n\t3 - Exit\n\t=> "
-        ))
-        if guiORcmd == 1:
-            self.cmdi()
-        elif guiORcmd == 2:
-            self.guii()
-        elif guiORcmd == 3:
-            exit()
+        self.chpath()
 
     @property
     def cmdi(self):
-        # Geting The User Input
+        # Geting The Hostname
         hn = str(input("Please Enter Your Hostname: "))
+
+        # Geting The Username
         self.usrn = str(input(
             "(if you dont want a seprate user leave empty)\nPlease Enter Your Username: "))
+
+        # Geting The Root Password
         rootpass = str(input("Please Enter Your Root Password: "))
+
+        # Listing The Devices
+        sys("fdisk -l")
+
+        # Choose The Disk
+        iDevice = str(
+            input("Choose the disk that you want to install on it ( /dev/sda ) => "))
+        if iDevice == "":
+            iDevice = "/dev/sda"
         
         # Update the system clock
         sys("timedatectl set-ntp true")
@@ -42,25 +59,19 @@ Arch Linux Installation Tool Version {}""".format(version)
                      stdout=PIPE).stdout.decode("UTF-8")
         if chuefi.find("No such file or directory") == -1:
             print("BIOS")
-            # Listing The Devices
-            sys("fdisk -l")
-
-            # Choose The Disk
-            iDevice = str(input("Choose the disk that you want to install on it ( /dev/sda ) => "))
-            if iDevice == "":
-                iDevice = "/dev/sda"
-
             # Partition the disks
             sys("pacman -S cfdisk")
             sys("cfdisk {}".format(iDevice))
             sys("clear")
         else:
             print("UEFI: Not Supported")
+            exit()
 
         # Mount the file systems
         sys("fdisk -l")
         rootdev = str(input("which one is the root partition? "))
-        homedev = str(input("which one is the home partition (if you dont have one press enter)? "))
+        homedev = str(
+            input("which one is the home partition (if you dont have one press enter)? "))
         sys("mount {} /mnt".format(rootdev))
         if homedev != "":
             sys("mount {} /mnt/home".format(homedev))
@@ -81,15 +92,20 @@ Arch Linux Installation Tool Version {}""".format(version)
             )
             ))
         chro.communicate(input="\n")
+
         # Creating a new initramfs, Set the root password
         print(chro.communicate(
             input="mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"))
         chro.communicate(input="{}".format(rootpass))
+
         # Boot loader
         chro.communicate(
             input="pacman -S grub && grub-install {}".format(iDevice))
         chro.communicate(input="\n")
         chro.communicate(input="exit")
+
+
+        self.chpath()
 
 
     @property
@@ -124,10 +140,10 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys(cmd)
         sys("chsh -s /bin/fish")
 
+    @property
     def ex(self):
         sys("umount -R /mnt")
         sys("reboot")
 
 
-x = alit()
-x.ex()
+alit()
