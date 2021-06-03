@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from os import system as sys
 from sys import exit
-from subprocess import run, PIPE
+from subprocess import run, PIPE, Popen
 
 
 class alit:
@@ -32,6 +32,7 @@ Arch Linux Installation Tool Version {}""".format(version)
         hn = str(input("Please Enter Your Hostname: "))
         self.usrn = str(input(
             "(if you dont want a seprate user leave empty)\nPlease Enter Your Username: "))
+        rootpass = str(input("Please Enter Your Root Password: "))
         
         # Update the system clock
         sys("timedatectl set-ntp true")
@@ -70,35 +71,26 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Generate an fstab file
         sys("genfstab -L /mnt >> /mnt/etc/fstab")
 
-        # Change root into the new system
-        sys("arch-chroot /mnt")
-
-        # Set the time zone
-        sys("ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime")
-        sys("hwclock --systohc")
-
-        # Localization
-        sys("echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen")
-        sys("touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf")
-
-        # Create the hostname file:
-        sys("echo '{}' > /etc/hostname".format(hn))
-        sys("echo '127.0.0.1\tlocalhost\n::1\tlocalhost\n127.0.1.1\t{}' > /etc/hosts".format(hn))
-        sys("pacman -S networkmanager")
-
-        # Creating a new initramfs
-        sys("mkinitcpio -P")
-
-        # Set the root password
-        print("----Please Choose The Root Password-----")
-        sys("passwd")
-
+        # Change root into the new system, Set the time zone, Localization, Create the hostname file
+        chro = Popen(["arch-chroot", "/mnt"],
+            stdin=PIPE,stderr=PIPE,stdout=PIPE)
+        print(chro.communicate(
+            input="ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && pacman -S networkmanager".format(
+                hn,
+                hn,
+            )
+            ))
+        chro.communicate(input="\n")
+        # Creating a new initramfs, Set the root password
+        print(chro.communicate(
+            input="mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"))
+        chro.communicate(input="{}".format(rootpass))
         # Boot loader
-        sys("pacman -S grub && grub-install {}".format(iDevice))
+        chro.communicate(
+            input="pacman -S grub && grub-install {}".format(iDevice))
+        chro.communicate(input="\n")
+        chro.communicate(input="exit")
 
-        # Exiting from program
-        self.ins("./cmdAL.txt")
-            
 
     @property
     def guii(self):
@@ -133,7 +125,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("chsh -s /bin/fish")
 
     def ex(self):
-        sys("exit")
         sys("umount -R /mnt")
         sys("reboot")
 
