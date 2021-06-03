@@ -132,7 +132,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys(cmd)
         sys("chsh -s /bin/fish")
 
-    @property
     def ex(self):
         sys("exit")
         sys("umount -R /mnt")
