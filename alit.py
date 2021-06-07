@@ -40,7 +40,7 @@ Arch Linux Installation Tool Version {}""".format(version)
             "(if you dont want a seprate user leave empty)\nPlease Enter Your Username: "))
 
         # Geting The Root Password
-        rootpass = str(input("Please Enter Your Root Password: "))
+        #rootpass = str(input("Please Enter Your Root Password: "))
 
         # Listing The Devices
         sys("fdisk -l")
