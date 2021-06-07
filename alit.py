@@ -2,7 +2,6 @@
 from os import system as sys
 from sys import exit
 from subprocess import run, PIPE, Popen
-from time import sleep
 
 
 class alit:
@@ -14,6 +13,7 @@ class alit:
 #      # #####  ###    #
 Arch Linux Installation Tool Version {}""".format(version)
     cpright = "Licensed Under GNU GPLv2\nCoding By M.J. Bagheri Nejad"
+    il = ""
     def chpath(self):
         chp = int(input(
             "\n\t1 - CMD Installtion\n\t2 - GUI Installtion\n\t3 - Exit\n\t=> "
@@ -83,35 +83,34 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Generate an fstab file
         sys("genfstab -L /mnt >> /mnt/etc/fstab")
 
-        # Change root into the new system, Set the time zone, Localization, Create the hostname file
-        chro = Popen(["arch-chroot", "/mnt"],
-            stdin=PIPE,stderr=PIPE,stdout=PIPE)
-        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && pacman -S networkmanager && mkinitcpio -P && passwd".format(
+        # Change root into the new system, Set the time zone, Localization, Create the hostname file, Creating a new initramfs, Set the root password
+        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && mkinitcpio -P && passwd".format(
             hn,
             hn,
         )
-        chro.communicate(input=bytes(cmd, "utf-8"))
-        sleep(15)
-        chro.communicate(input=b"\n")
-
-        # Creating a new initramfs, Set the root password
-        sleep(40)
-        chro.communicate(input=bytes(rootpass))
-
+        chro = Popen(["arch-chroot", "/mnt", cmd],
+            stdin=PIPE,stderr=PIPE,stdout=PIPE) 
+        chro.communicate(input=bytes("{}\n".format(rootpass), "utf-8"))
+        
         # Boot loader
-        bl = "pacman -S grub && grub-install {} && exit".format(iDevice)
-        chro.communicate(input=bytes(bl, "utf-8"))
-        sleep(15)
-        chro.communicate(input=b"\n")
+        bl = "pacman -S networkmanager grub && grub-install {}".format(
+            iDevice)
+        chro1 = Popen(["arch-chroot", "/mnt", bl],
+                     stdin=PIPE, stderr=PIPE, stdout=PIPE)
+        chro1.communicate(input=b"\n")
 
+        if self.usrn != "":
+            cmd = "useradd -m -G wheel -s /bin/fish {}".format(self.usrn)
+            run(["arch-chroot", "/mnt", cmd])
 
-        self.chpath()
+        self.il = "./cmdIL"
+        self.ins()
 
 
     @property
     def guii(self):
         self.cmdi()
-        gpu = run(["lspci","-v","|","grep","-A1","-e","VGA","-e","3D"],
+        gpu = run(["lspci -v | grep -A1 -e VGA -e 3D"],
         stdout=PIPE).stdout.decode("UTF-8")
         if gpu.find("intel") == -1 | gpu.find("Intel") == -1:
             gpud = "xf86-video-intel"
@@ -119,26 +118,32 @@ Arch Linux Installation Tool Version {}""".format(version)
             gpud = "nvidia"
         elif gpu.find("amd") == -1 | gpu.find("AMD") == -1:
             gpud = "xf86-video-amdgpu"
-        sys("pacman -S xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(gpud))
-        appl = str(input("Please Enter Your App List if you have one (Default: ./qtileAL.txt): "))
-        if appl == "":
-            appl == "./qtileAL.txt"
-        self.ins(appl)
-        if self.usrn != "":
-            sys("useradd -m -G wheel -s /bin/fish {}".format(self.usrn))
+        cmd = "pacman -S xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(
+            gpud)
+        chro = Popen(["arch-chroot", "/mnt", cmd],
+                     stdin=PIPE, stderr=PIPE, stdout=PIPE)
+        chro.communicate(input=b"\n")
+        il = str(input("Please Enter Your App List if you have one (Default: ./qtileAL.txt): "))
+        if il == "":
+            self.il = "./qtileAL.txt"
+        else:
+            self.il = il
+        self.ins()
+        
     
     @property
-    def ins(self, s):
-        s = str(s)
-        f = open(s, "r")
+    def ins(self):
+        f = open(self.il, "r")
         lins = f.readlines()
         cmd = "pacman -S"
         for lin in lins:
             cmd = "{} {}".format(cmd, lin)
         
         f.close()
-        sys(cmd)
-        sys("chsh -s /bin/fish")
+        cmd = "{} {}".format(cmd, "&& chsh -s /bin/fish")
+        chro = Popen(["arch-chroot", "/mnt", cmd],
+                      stdin=PIPE, stderr=PIPE, stdout=PIPE)
+        chro.communicate(input=b"\n")
 
     @property
     def ex(self):
