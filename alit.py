@@ -89,7 +89,7 @@ Arch Linux Installation Tool Version {}""".format(version)
             hn,
             hn,
         )
-        chro.communicate(input=bytes(cmd))
+        chro.communicate(input=bytes(cmd, "utf-8"))
         chro.communicate(input=b"\n")
 
         # Creating a new initramfs, Set the root password
@@ -99,7 +99,7 @@ Arch Linux Installation Tool Version {}""".format(version)
 
         # Boot loader
         bl = "pacman -S grub && grub-install {}".format(iDevice)
-        chro.communicate(input=bytes(bl))
+        chro.communicate(input=bytes(bl, "utf-8"))
         chro.communicate(input=b"\n")
         chro.communicate(input=b"exit")
 
