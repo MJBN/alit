@@ -72,9 +72,14 @@ Arch Linux Installation Tool Version {}""".format(version)
         rootdev = str(input("which one is the root partition? "))
         homedev = str(
             input("which one is the home partition (if you dont have one press enter)? "))
-        sys("mount {} /mnt".format(rootdev))
+        sys("mkfs.ext4 {} && mount {} /mnt".format(rootdev, rootdev))
         if homedev != "":
-            sys("mount {} /mnt/home".format(homedev))
+            hmkfs = str(
+                input("Do you want to format the home partition (y/N)? "))
+            if hmkfs == "y":
+                sys("mkfs.ext4 {} && mount {} /mnt/home".format(homedev, homedev))
+            elif hmkfs == "" | hmkfs == "n" | hmkfs == "N":
+                sys("mount {} /mnt/home".format(homedev))
 
         # Install essential packages
         sys("pacstrap /mnt base linux linux-firmware")
