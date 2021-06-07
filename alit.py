@@ -85,22 +85,21 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Change root into the new system, Set the time zone, Localization, Create the hostname file
         chro = Popen(["arch-chroot", "/mnt"],
             stdin=PIPE,stderr=PIPE,stdout=PIPE)
-        print(chro.communicate(
-            input="ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && pacman -S networkmanager".format(
-                hn,
-                hn,
-            )
-            ))
+        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && pacman -S networkmanager".format(
+            hn,
+            hn,
+        )
+        chro.communicate(input=cmd)
         chro.communicate(input="\n")
 
         # Creating a new initramfs, Set the root password
-        print(chro.communicate(
-            input="mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"))
-        chro.communicate(input="{}".format(rootpass))
+        fsroot = "mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"
+        chro.communicate(input=fsroot)
+        chro.communicate(input=rootpass)
 
         # Boot loader
-        chro.communicate(
-            input="pacman -S grub && grub-install {}".format(iDevice))
+        bl = "pacman -S grub && grub-install {}".format(iDevice)
+        chro.communicate(input=bl)
         chro.communicate(input="\n")
         chro.communicate(input="exit")
 
