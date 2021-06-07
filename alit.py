@@ -15,14 +15,14 @@ Arch Linux Installation Tool Version {}""".format(version)
     cpright = "Licensed Under GNU GPLv2\nCoding By M.J. Bagheri Nejad"
     il = ""
     def chpath(self):
-        chp = int(input(
+        self.chp = int(input(
             "\n\t1 - CMD Installtion\n\t2 - GUI Installtion\n\t3 - Exit\n\t=> "
         ))
-        if chp == 1:
+        if self.chp == 1:
             self.cmdi()
-        elif chp == 2:
+        elif self.chp == 2:
             self.guii()
-        elif chp == 3:
+        elif self.chp == 3:
             self.ex()
         else:
             self.chpath()
@@ -31,7 +31,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         print("{}\n{}".format(self.logo, self.cpright))
         self.chpath()
 
-    @property
     def cmdi(self):
         # Geting The Hostname
         hn = str(input("Please Enter Your Hostname: "))
@@ -99,15 +98,20 @@ Arch Linux Installation Tool Version {}""".format(version)
                      stdin=PIPE, stderr=PIPE, stdout=PIPE)
         chro1.communicate(input=b"\n")
 
+        #Adding User
         if self.usrn != "":
             cmd = "useradd -m -G wheel -s /bin/fish {}".format(self.usrn)
             run(["arch-chroot", "/mnt", cmd])
-
+        
+        #IL
         self.il = "./cmdIL"
         self.ins()
 
+        # Exiting
+        if self.chp == 1:
+            self.ex()
 
-    @property
+
     def guii(self):
         self.cmdi()
         gpu = run(["lspci -v | grep -A1 -e VGA -e 3D"],
@@ -129,9 +133,9 @@ Arch Linux Installation Tool Version {}""".format(version)
         else:
             self.il = il
         self.ins()
+        self.ex()
         
     
-    @property
     def ins(self):
         f = open(self.il, "r")
         lins = f.readlines()
@@ -145,10 +149,10 @@ Arch Linux Installation Tool Version {}""".format(version)
                       stdin=PIPE, stderr=PIPE, stdout=PIPE)
         chro.communicate(input=b"\n")
 
-    @property
     def ex(self):
         sys("umount -R /mnt")
         sys("reboot")
 
 
-alit()
+if __name__ == "__main__":
+    alit()
