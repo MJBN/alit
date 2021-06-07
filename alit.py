@@ -83,7 +83,7 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("genfstab -L /mnt >> /mnt/etc/fstab")
 
         # Change root into the new system, Set the time zone, Localization, Create the hostname file, Creating a new initramfs, Set the root password
-        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && mkinitcpio -P && passwd".format(
+        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && mkinitcpio -P".format(
             hn,
             hn,
         )
@@ -103,6 +103,9 @@ Arch Linux Installation Tool Version {}""".format(version)
             cmd = "useradd -m -G wheel -s /bin/fish {}".format(self.usrn)
             run(["arch-chroot", "/mnt", cmd])
 
+        # Changing Root Password
+        run(["arch-chroot", "/mnt", "passwd"])
+        
         # Exiting
         if self.chp == 1:
             self.ex()
