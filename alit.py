@@ -111,7 +111,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         if self.chp == 1:
             self.ex()
 
-
     def guii(self):
         self.cmdi()
         gpu = run(["lspci -v | grep -A1 -e VGA -e 3D"],
@@ -134,7 +133,6 @@ Arch Linux Installation Tool Version {}""".format(version)
             self.il = il
         self.ins()
         self.ex()
-        
     
     def ins(self):
         f = open(self.il, "r")
@@ -142,7 +140,6 @@ Arch Linux Installation Tool Version {}""".format(version)
         cmd = "pacman -S"
         for lin in lins:
             cmd = "{} {}".format(cmd, lin)
-        
         f.close()
         cmd = "{} {}".format(cmd, "&& chsh -s /bin/fish")
         chro = Popen(["arch-chroot", "/mnt", cmd],
@@ -152,7 +149,6 @@ Arch Linux Installation Tool Version {}""".format(version)
     def ex(self):
         sys("umount -R /mnt")
         sys("reboot")
-
 
 if __name__ == "__main__":
     alit()
