@@ -2,6 +2,7 @@
 from os import system as sys
 from sys import exit
 from subprocess import run, PIPE, Popen
+from time import sleep
 
 
 class alit:
@@ -85,23 +86,23 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Change root into the new system, Set the time zone, Localization, Create the hostname file
         chro = Popen(["arch-chroot", "/mnt"],
             stdin=PIPE,stderr=PIPE,stdout=PIPE)
-        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && pacman -S networkmanager".format(
+        cmd = "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime && hwclock --systohc && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && touch /etc/locale.conf && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && echo '{}' > /etc/hostname && echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{}' > /etc/hosts && pacman -S networkmanager && mkinitcpio -P && passwd".format(
             hn,
             hn,
         )
         chro.communicate(input=bytes(cmd, "utf-8"))
+        sleep(15)
         chro.communicate(input=b"\n")
 
         # Creating a new initramfs, Set the root password
-        fsroot = b"mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"
-        chro.communicate(input=fsroot)
+        sleep(40)
         chro.communicate(input=bytes(rootpass))
 
         # Boot loader
-        bl = "pacman -S grub && grub-install {}".format(iDevice)
+        bl = "pacman -S grub && grub-install {} && exit".format(iDevice)
         chro.communicate(input=bytes(bl, "utf-8"))
+        sleep(15)
         chro.communicate(input=b"\n")
-        chro.communicate(input=b"exit")
 
 
         self.chpath()
