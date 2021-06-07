@@ -89,19 +89,19 @@ Arch Linux Installation Tool Version {}""".format(version)
             hn,
             hn,
         )
-        chro.communicate(input=cmd)
-        chro.communicate(input="\n")
+        chro.communicate(input=bytes(cmd))
+        chro.communicate(input=b"\n")
 
         # Creating a new initramfs, Set the root password
-        fsroot = "mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"
+        fsroot = b"mkinitcpio -P && clear && echo '----Please Choose The Root Password-----' && passwd"
         chro.communicate(input=fsroot)
-        chro.communicate(input=rootpass)
+        chro.communicate(input=bytes(rootpass))
 
         # Boot loader
         bl = "pacman -S grub && grub-install {}".format(iDevice)
-        chro.communicate(input=bl)
-        chro.communicate(input="\n")
-        chro.communicate(input="exit")
+        chro.communicate(input=bytes(bl))
+        chro.communicate(input=b"\n")
+        chro.communicate(input=b"exit")
 
 
         self.chpath()
