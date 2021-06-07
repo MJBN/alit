@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from os import system as sys
 from sys import exit
-from subprocess import run, PIPE, Popen
+from subprocess import run, PIPE
 
 
 class alit:
@@ -87,25 +87,21 @@ Arch Linux Installation Tool Version {}""".format(version)
             hn,
             hn,
         )
-        chro = Popen(["arch-chroot", "/mnt", cmd],
-            stdin=PIPE,stderr=PIPE,stdout=PIPE) 
-        chro.communicate(input=bytes("{}\n".format(rootpass), "utf-8"))
+        run(["arch-chroot", "/mnt", cmd]) 
         
         # Boot loader
         bl = "pacman -S networkmanager grub && grub-install {}".format(
             iDevice)
-        chro1 = Popen(["arch-chroot", "/mnt", bl],
-                     stdin=PIPE, stderr=PIPE, stdout=PIPE)
-        chro1.communicate(input=b"\n")
+        run(["arch-chroot", "/mnt", bl])
+
+        #IL
+        self.il = "./cmdIL"
+        self.ins()
 
         #Adding User
         if self.usrn != "":
             cmd = "useradd -m -G wheel -s /bin/fish {}".format(self.usrn)
             run(["arch-chroot", "/mnt", cmd])
-        
-        #IL
-        self.il = "./cmdIL"
-        self.ins()
 
         # Exiting
         if self.chp == 1:
@@ -123,9 +119,7 @@ Arch Linux Installation Tool Version {}""".format(version)
             gpud = "xf86-video-amdgpu"
         cmd = "pacman -S xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(
             gpud)
-        chro = Popen(["arch-chroot", "/mnt", cmd],
-                     stdin=PIPE, stderr=PIPE, stdout=PIPE)
-        chro.communicate(input=b"\n")
+        run(["arch-chroot", "/mnt", cmd])
         il = str(input("Please Enter Your App List if you have one (Default: ./qtileAL.txt): "))
         if il == "":
             self.il = "./qtileAL.txt"
@@ -142,9 +136,7 @@ Arch Linux Installation Tool Version {}""".format(version)
             cmd = "{} {}".format(cmd, lin)
         f.close()
         cmd = "{} {}".format(cmd, "&& chsh -s /bin/fish")
-        chro = Popen(["arch-chroot", "/mnt", cmd],
-                      stdin=PIPE, stderr=PIPE, stdout=PIPE)
-        chro.communicate(input=b"\n")
+        run(["arch-chroot", "/mnt", cmd])
 
     def ex(self):
         sys("umount -R /mnt")
