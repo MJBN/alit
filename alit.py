@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from os import system as sys
-from sys import exit
+from sys import exit, argv
 from subprocess import run, PIPE
 
 
@@ -13,7 +13,8 @@ class alit:
 #      # #####  ###    #
 Arch Linux Installation Tool Version {}""".format(version)
     cpright = "Licensed Under GNU GPLv2\nCoding By M.J. Bagheri Nejad"
-    il = ""
+    il = argv[1]
+    tlin = ""
     def chpath(self):
         self.chp = int(input(
             "\n\t1 - CMD Installtion\n\t2 - GUI Installtion\n\t3 - Exit\n\t=> "
@@ -33,7 +34,7 @@ Arch Linux Installation Tool Version {}""".format(version)
 
     def cmdi(self):
         # Geting The Hostname
-        hn = str(input("Please Enter Your Hostname: "))
+        self.hn = str(input("Please Enter Your Hostname: "))
 
         # Geting The Username
         self.usrn = str(input(
@@ -87,19 +88,18 @@ Arch Linux Installation Tool Version {}""".format(version)
         # Generate an fstab file
         sys("genfstab -L /mnt >> /mnt/etc/fstab")
 
+        #Adding User
+        if self.usrn != "":
+            self.tlin = f"useradd -m -G wheel -s /bin/fish {self.usrn}"
+            self.achrosh()
+
         # Change root into the new system, Set the time zone, Localization, Create the hostname file
         # Boot loader, Creating a new initramfs
         if self.chp == 1:
             self.rchrosh()
         
         #IL
-        self.il = "./cmdIL"
         self.ins()
-
-        #Adding User
-        if self.usrn != "":
-            run(["arch-chroot", "/mnt",
-                f"useradd -m -G wheel -s /bin/fish {self.usrn}"])
 
         # Set the root password
         print("----Set the root password----")
@@ -126,17 +126,11 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys(f"pacstrap /mnt xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {gpud}")
 
         # Editing chrosh and executing
-        f = open("./chrosh.fish", "a")
-        f.writelines("systemctl enable lightdm")
-        f.close()
+        self.tlin = "systemctl enable lightdm"
+        self.achrosh()
         self.rchrosh()
 
-        # Executing the il()
-        il = str(input("Please Enter Your App List if you have one (Default: ./qtileIL): "))
-        if il == "":
-            self.il = "./qtileIL"
-        else:
-            self.il = il
+        # Installing pkgs from ILs
         self.ins()
 
         # Exiting
@@ -155,7 +149,12 @@ Arch Linux Installation Tool Version {}""".format(version)
     def rchrosh(self):
         run(["cp", "./chrosh.bash", "/mnt/usr/bin/chrosh"])
         run(["chmod", "+x", "/mnt/usr/bin/chrosh"])
-        run(["arch-chroot", "/mnt", "chrosh"])
+        run(["arch-chroot", "/mnt", "chrosh", self.hn])
+    
+    def achrosh(self):
+        f = open("./chrosh.fish", "a")
+        f.writelines(self.tlin)
+        f.close()
 
     def ex(self):
         sys("umount -R /mnt")
