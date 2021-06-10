@@ -82,37 +82,27 @@ Arch Linux Installation Tool Version {}""".format(version)
                 sys("mount {} /mnt/home".format(homedev))
 
         # Install essential packages
-        sys("pacstrap /mnt base linux linux-firmware")
+        sys("pacstrap /mnt base linux linux-firmware fish vim micro ranger sudo networkmanager grub")
 
         # Generate an fstab file
         sys("genfstab -L /mnt >> /mnt/etc/fstab")
 
-        # Change root into the new system, Set the time zone, Localization, Create the hostname file, Creating a new initramfs, Set the root password
-        run(["arch-chroot", "/mnt", "ln -sf /usr/share/zoneinfo/Europe/ /etc/localtime"])
-        run(["arch-chroot", "/mnt", "hwclock --systohc"])
-        run(["arch-chroot", "/mnt", "echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen"])
-        run(["arch-chroot", "/mnt", "locale-gen"])
-        run(["arch-chroot", "/mnt", "touch /etc/locale.conf"])
-        run(["arch-chroot", "/mnt", "echo 'LANG=en_US.UTF-8' > /etc/locale.conf"])
-        run(["arch-chroot", "/mnt", f"echo '{hn}' > /etc/hostname"])
-        run(["arch-chroot", "/mnt", f"echo '127.0.0.1\\tlocalhost\\n::1\\tlocalhost\\n127.0.1.1\\t{hn}' > /etc/hosts"])
-        run(["arch-chroot", "/mnt", "mkinitcpio -P"])
+        # Change root into the new system, Set the time zone, Localization, Create the hostname file
+        # Boot loader, Creating a new initramfs
+        if self.chp == 1:
+            self.rchrosh()
         
-        # Boot loader
-        bl = "pacman -S networkmanager grub && grub-install {}".format(
-            iDevice)
-        run(["arch-chroot", "/mnt", bl])
-
         #IL
         self.il = "./cmdIL"
         self.ins()
 
         #Adding User
         if self.usrn != "":
-            cmd = "useradd -m -G wheel -s /bin/fish {}".format(self.usrn)
-            run(["arch-chroot", "/mnt", cmd])
+            run(["arch-chroot", "/mnt",
+                f"useradd -m -G wheel -s /bin/fish {self.usrn}"])
 
-        # Changing Root Password
+        # Set the root password
+        print("----Set the root password----")
         run(["arch-chroot", "/mnt", "passwd"])
         
         # Exiting
@@ -120,35 +110,52 @@ Arch Linux Installation Tool Version {}""".format(version)
             self.ex()
 
     def guii(self):
+        # Runing The CMD Installation
         self.cmdi()
-        gpu = run(["lspci -v | grep -A1 -e VGA -e 3D"],
-        stdout=PIPE).stdout.decode("UTF-8")
+
+        # Getting The Graphic Card Chipset Brand
+        gpu = run(["lspci -v | grep -A1 -e VGA -e 3D"], stdout=PIPE).stdout.decode("UTF-8")
         if gpu.find("intel") == -1 | gpu.find("Intel") == -1:
             gpud = "xf86-video-intel"
         elif gpu.find("nvidia") == -1 | gpu.find("Nvidia") == -1:
             gpud = "nvidia"
         elif gpu.find("amd") == -1 | gpu.find("AMD") == -1:
             gpud = "xf86-video-amdgpu"
-        cmd = "pacman -S xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {} && systemctl enable lightdm".format(
-            gpud)
-        run(["arch-chroot", "/mnt", cmd])
-        il = str(input("Please Enter Your App List if you have one (Default: ./qtileAL.txt): "))
+        
+        # Installing xServer, Display Manager, Sound Driver, Graphic Driver
+        sys(f"pacstrap /mnt xorg xterm lightdm lightdm-gtk-greeter pulseaudio pavucontrol {gpud}")
+
+        # Editing chrosh and executing
+        f = open("./chrosh.fish", "a")
+        f.writelines("systemctl enable lightdm")
+        f.close()
+        self.rchrosh()
+
+        # Executing the il()
+        il = str(input("Please Enter Your App List if you have one (Default: ./qtileIL): "))
         if il == "":
-            self.il = "./qtileAL.txt"
+            self.il = "./qtileIL"
         else:
             self.il = il
         self.ins()
+
+        # Exiting
         self.ex()
     
     def ins(self):
         f = open(self.il, "r")
         lins = f.readlines()
-        cmd = "pacman -S"
+        cmd = "pacstrap /mnt"
         for lin in lins:
-            cmd = "{} {}".format(cmd, lin)
+            cmd = f"{cmd} {lin}"
         f.close()
-        cmd = "{} {}".format(cmd, "&& chsh -s /bin/fish")
-        run(["arch-chroot", "/mnt", cmd])
+        cmd = cmd.replace("\n", "");cmd = cmd.replace("\t", "")
+        sys(cmd)
+    
+    def rchrosh(self):
+        run(["cp", "./chrosh.bash", "/mnt/usr/bin/chrosh"])
+        run(["chmod", "+x", "/mnt/usr/bin/chrosh"])
+        run(["arch-chroot", "/mnt", "chrosh"])
 
     def ex(self):
         sys("umount -R /mnt")
