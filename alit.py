@@ -47,7 +47,7 @@ Arch Linux Installation Tool Version {}""".format(version)
         sys("fdisk -l")
 
         # Choose The Disk
-        iDevice = str(
+        self.iDevice = str(
             input("Choose the disk that you want to install on it ( /dev/sda ) => "))
         if iDevice == "":
             iDevice = "/dev/sda"
@@ -149,7 +149,7 @@ Arch Linux Installation Tool Version {}""".format(version)
     def rchrosh(self):
         run(["cp", "./chrosh.bash", "/mnt/usr/bin/chrosh"])
         run(["chmod", "+x", "/mnt/usr/bin/chrosh"])
-        run(["arch-chroot", "/mnt", "chrosh", self.hn])
+        run(["arch-chroot", "/mnt", "chrosh", self.hn, self.iDevice])
     
     def achrosh(self):
         f = open("./chrosh.fish", "a")
